@@ -1,0 +1,32 @@
+#!/bin/dash
+
+echo "go generate ./..."
+go generate ./...
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+echo "go tool vet -all -shadow=true . &"
+go tool vet -all -shadow=true . &
+C1=$!
+
+echo "go test -short ./... > /tmp/testout &"
+go test -short ./... > /tmp/testout &
+C2=$!
+
+wait $C1
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+wait $C2
+if [ $? -ne 0 ]; then
+  grep -Ev "^(ok|\?) " < /tmp/testout
+  exit 1
+fi
+
+echo "go install ./..."
+go install ./...
+if [ $? -ne 0 ]; then
+  exit 1
+fi

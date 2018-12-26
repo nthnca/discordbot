@@ -1,0 +1,1 @@
+export GOPATH=$HOME/discordbot/ext:$HOME/discordbot
